@@ -1,0 +1,368 @@
+<!-- В templates/transactions/history.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-history"></i> История транзакций</h1>
+                <p class="lead">Все пополнения, вычеты и ожидающие операции</p>
+            </div>
+            <div>
+                {% if transactions %}
+                <!-- Кнопка для открытия модального окна -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+                    <i class="fas fa-trash-alt"></i> Очистить историю
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для очистки истории -->
+    <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle"></i> Очистка истории транзакций
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-circle"></i> Внимание!</h6>
+                        <p class="mb-0">Вы собираетесь удалить всю историю транзакций.</p>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6>Будет удалено:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Всего записей:</strong> {{ stats.total }}</li>
+                            <li><strong>Ожидающих:</strong> {{ stats.pending }}</li>
+                            <li><strong>Подтвержденных:</strong> {{ stats.approved }}</li>
+                            <li><strong>Отклоненных:</strong> {{ stats.rejected }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p>Это действие нельзя отменить. Балансы пользователей не изменятся.</p>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmCheckbox">
+                            <label class="form-check-label" for="confirmCheckbox">
+                                Я понимаю, что все транзакции будут удалены без возможности восстановления
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <form method="post" action="{% url 'clear_transaction_history' %}" id="clearForm">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" id="clearButton" disabled>
+                            <i class="fas fa-trash-alt"></i> Очистить историю
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Всего</h6>
+                    <h3 class="mb-0">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Ожидают</h6>
+                    <h3 class="mb-0">{{ stats.pending }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Подтверждено</h6>
+                    <h3 class="mb-0">{{ stats.approved }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Сумма</h6>
+                    <h3 class="mb-0">{{ stats.total_amount }}£</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Статус:</label>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'transaction_history' %}" 
+                           class="btn btn-outline-secondary {% if not current_status %}active{% endif %}">
+                            Все
+                        </a>
+                        {% for status_code, status_name in statuses %}
+                        <a href="{% url 'transaction_history' %}?status={{ status_code }}" 
+                           class="btn btn-outline-secondary {% if current_status == status_code %}active{% endif %}">
+                            {{ status_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Тип:</label>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'transaction_history' %}" 
+                           class="btn btn-outline-secondary {% if not current_type %}active{% endif %}">
+                            Все
+                        </a>
+                        {% for type_code, type_name in types %}
+                        <a href="{% url 'transaction_history' %}?type={{ type_code }}" 
+                           class="btn btn-outline-secondary {% if current_type == type_code %}active{% endif %}">
+                            {{ type_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица транзакций -->
+    <div class="card">
+        <div class="card-body">
+            {% if transactions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Дата</th>
+                            <th>Пользователь</th>
+                            <th>Тип</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Описание</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>#{{ transaction.id }}</td>
+                            <td>{{ transaction.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>{{ transaction.user.get_full_name|default:transaction.user.username }}</td>
+                            <td>
+                                <span class="badge bg-{{ transaction.get_type_color }}">
+                                    {{ transaction.get_transaction_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if transaction.amount >= 0 %}
+                                <span class="text-success">+{{ transaction.amount }}£</span>
+                                {% else %}
+                                <span class="text-danger">{{ transaction.amount }}£</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ transaction.get_status_color }}">
+                                    {{ transaction.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ transaction.description|default:""|truncatechars:50 }}
+                                </small>
+                                {% if transaction.reason %}
+                                <br><small><em>{{ transaction.reason|truncatechars:50 }}</em></small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if transaction.status == 'pending' %}
+                                <div class="btn-group btn-group-sm">
+                                    <form method="post" action="{% url 'approve_transaction' transaction.id %}" 
+                                          style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success" 
+                                                onclick="return confirm('Подтвердить транзакцию?')"
+                                                title="Подтвердить">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <button type="button" class="btn btn-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#rejectModal{{ transaction.id }}"
+                                            title="Отклонить">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Модальное окно для отклонения -->
+                                <div class="modal fade" id="rejectModal{{ transaction.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Отклонить транзакцию #{{ transaction.id }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form method="post" action="{% url 'reject_transaction' transaction.id %}">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="reason{{ transaction.id }}" class="form-label">
+                                                            Причина отклонения:
+                                                        </label>
+                                                        <textarea class="form-control" 
+                                                                  id="reason{{ transaction.id }}" 
+                                                                  name="reason" 
+                                                                  rows="3"
+                                                                  placeholder="Укажите причину отклонения..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" 
+                                                            data-bs-dismiss="modal">Отмена</button>
+                                                    <button type="submit" class="btn btn-danger">
+                                                        Отклонить
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <small class="text-muted">
+                                    {% if transaction.processed_by %}
+                                    {{ transaction.processed_at|date:"d.m.Y H:i" }}<br>
+                                    {{ transaction.processed_by.get_full_name|default:transaction.processed_by.username }}
+                                    {% endif %}
+                                </small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Транзакции не найдены</p>
+                <a href="{% url 'algorithms' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Создать транзакцию
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    border: none;
+}
+
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Стили для модального окна */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+    border-radius: 0 0 15px 15px;
+}
+
+#clearButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Управление кнопкой очистки истории
+    const confirmCheckbox = document.getElementById('confirmCheckbox');
+    const clearButton = document.getElementById('clearButton');
+    const clearForm = document.getElementById('clearForm');
+    
+    if (confirmCheckbox && clearButton) {
+        confirmCheckbox.addEventListener('change', function() {
+            clearButton.disabled = !this.checked;
+        });
+        
+        // Очистка чекбокса при закрытии модального окна
+        const modal = document.getElementById('clearHistoryModal');
+        if (modal) {
+            modal.addEventListener('hidden.bs.modal', function() {
+                confirmCheckbox.checked = false;
+                clearButton.disabled = true;
+            });
+        }
+    }
+    
+    // Подтверждение очистки истории
+    if (clearForm) {
+        clearForm.addEventListener('submit', function(e) {
+            if (!confirm('Вы уверены, что хотите удалить всю историю транзакций?\n\nЭто действие нельзя отменить!')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

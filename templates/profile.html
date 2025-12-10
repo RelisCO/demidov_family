@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header">
+        <h1><i class="fas fa-user-circle"></i> Мой профиль</h1>
+        <a href="{% url 'algorithms' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Назад к алгоритмам
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Основная информация -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Основная информация</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label><i class="fas fa-user"></i> Имя пользователя:</label>
+                        <span class="value">{{ user.username }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label><i class="fas fa-signature"></i> Полное имя:</label>
+                        <span class="value">
+                            {% if user.first_name or user.last_name %}
+                                {{ user.first_name }} {{ user.last_name }}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label><i class="fas fa-envelope"></i> Email:</label>
+                        <span class="value">{{ user.email|default:"Не указан" }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label><i class="fas fa-calendar-plus"></i> Дата регистрации:</label>
+                        <span class="value">{{ user.date_joined|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label><i class="fas fa-user-tag"></i> Роль:</label>
+                        <span class="value">
+                            {% if user.is_superuser %}
+                            <span class="badge bg-danger">Администратор</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Пользователь</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Финансовая информация -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> Финансовая статистика</h3>
+                </div>
+                <div class="card-body">
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="balance-info">
+                            <div class="balance-label">Текущий баланс</div>
+                            <div class="balance-amount">{{ user.profile.virtual_balance }}£</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Всего заработано</div>
+                            <div class="stat-value">{{ user.profile.total_earned }}£</div>
+                        </div>
+                        
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</div>
+
+<style>
+.profile-page {
+    padding: 20px 0;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.profile-header h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+    border: none;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-item .value {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Карточка баланса */
+.balance-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.balance-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.balance-icon i {
+    font-size: 1.8rem;
+}
+
+.balance-info {
+    flex-grow: 1;
+}
+
+.balance-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 5px;
+}
+
+.balance-amount {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+/* Статистика */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-actions .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Таблица */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 0;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.alert-link {
+    color: #1565c0;
+    font-weight: 600;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .balance-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .balance-amount {
+        font-size: 1.8rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions .btn {
+        min-width: 100%;
+    }
+}
+</style>
+{% endblock %}

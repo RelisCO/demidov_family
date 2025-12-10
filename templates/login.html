@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="login-page">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2><i class="fas fa-sign-in-alt"></i> Вход в систему</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Неверное имя пользователя или пароль. Попробуйте снова.
+                        </div>
+                        {% endif %}
+                        
+                        {% if next %}
+                            {% if user.is_authenticated %}
+                            <div class="alert alert-warning">
+                                У вашей учетной записи нет доступа к этой странице.
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                Пожалуйста, войдите для просмотра этой страницы.
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <form method="post" class="login-form">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label">
+                                    <i class="fas fa-user"></i> Имя пользователя:
+                                </label>
+                                <input type="text" name="username" id="id_username" 
+                                       class="form-control" required autofocus>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_password" class="form-label">
+                                    <i class="fas fa-lock"></i> Пароль:
+                                </label>
+                                <input type="password" name="password" id="id_password" 
+                                       class="form-control" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt"></i> Войти
+                                </button>
+                            </div>
+                            
+                            <input type="hidden" name="next" value="{{ next }}">
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <p class="text-muted">Нет учетной записи?</p>
+                            <p>Обратитесь к администратору для создания учетной записи.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home"></i> На главную
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.login-page {
+    padding: 50px 0;
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 25px;
+}
+
+.form-control {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}

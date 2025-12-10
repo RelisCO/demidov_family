@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <!-- Заголовок страницы -->
+    <div class="page-header">
+        <h1><i class="fas fa-code"></i> Алгоритмы</h1>
+        <p class="lead">Выберите алгоритм для работы</p>
+    </div>
+
+    <!-- Карточки алгоритмов -->
+    <div class="algorithms-grid">
+        <!-- Алгоритм оплаты за шаги -->
+        <div class="algorithm-card featured">
+            <div class="algorithm-icon">
+                <i class="fas fa-walking fa-3x"></i>
+            </div>
+            <div class="algorithm-content">
+                <h3>Оплата за шаги</h3>
+                <p class="algorithm-description">
+                    Рассчитайте выплаты пользователям за пройденные километры.
+                    1 км = 1 фунт (£).
+                </p>
+                <div class="algorithm-stats">
+                    <span class="stat">
+                        <i class="fas fa-users"></i>
+                        Для всех пользователей
+                    </span>
+                    <span class="stat">
+                        <i class="fas fa-calculator"></i>
+                        Автоматический расчет
+                    </span>
+                </div>
+                <a href="{% url 'step_payment_calculator' %}" class="btn btn-primary">
+                    <i class="fas fa-play-circle"></i> Запустить алгоритм
+                </a>
+            </div>
+        </div>
+
+        <!-- Другие алгоритмы (заглушки) -->
+        <div class="algorithm-card">
+            <div class="algorithm-icon">
+                <i class="fas fa-chart-line fa-3x"></i>
+            </div>
+            <div class="algorithm-content">
+                <h3>Анализ событий</h3>
+                <p class="algorithm-description">
+                    Анализ семейных событий и статистика.
+                    В разработке.
+                </p>
+                <button class="btn btn-outline-secondary" disabled>
+                    <i class="fas fa-clock"></i> Скоро
+                </button>
+            </div>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-icon">
+                <i class="fas fa-calendar-check fa-3x"></i>
+            </div>
+            <div class="algorithm-content">
+                <h3>Планировщик</h3>
+                <p class="algorithm-description">
+                    Алгоритм планирования семейных мероприятий.
+                    В разработке.
+                </p>
+                <button class="btn btn-outline-secondary" disabled>
+                    <i class="fas fa-clock"></i> Скоро
+                </button>
+            </div>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-icon">
+                <i class="fas fa-gift fa-3x"></i>
+            </div>
+            <div class="algorithm-content">
+                <h3>Бюджет подарков</h3>
+                <p class="algorithm-description">
+                    Расчет бюджета для семейных праздников.
+                    В разработке.
+                </p>
+                <button class="btn btn-outline-secondary" disabled>
+                    <i class="fas fa-clock"></i> Скоро
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- История расчетов (только для авторизованных) -->
+    {% if user.is_authenticated %}
+    <div class="recent-calculations">
+        <h3><i class="fas fa-history"></i> Недавние расчеты</h3>
+        
+        {% if recent_calculations %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Алгоритм</th>
+                        <th>Пользователь</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for calc in recent_calculations %}
+                    <tr>
+                        <td>{{ calc.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>Оплата за шаги</td>
+                        <td>{{ calc.user.get_full_name|default:calc.user.username }}</td>
+                        <td><strong>{{ calc.amount_earned }}£</strong></td>
+                        <td>
+                            {% if calc.processed %}
+                            <span class="badge bg-success">Выплачено</span>
+                            {% else %}
+                            <span class="badge bg-warning">Ожидает</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            У вас пока нет расчетов. Запустите алгоритм "Оплата за шаги".
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Стили для страницы алгоритмов */
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.page-header .lead {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Сетка алгоритмов */
+.algorithms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.algorithm-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e9ecef;
+}
+
+.algorithm-card.featured {
+    border-left: 5px solid #28a745;
+    background: linear-gradient(to right, #f8fff9, white);
+}
+
+.algorithm-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.algorithm-icon {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #667eea;
+}
+
+.algorithm-card.featured .algorithm-icon {
+    color: #28a745;
+}
+
+.algorithm-content {
+    flex-grow: 1;
+}
+
+.algorithm-content h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+.algorithm-description {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.algorithm-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.stat i {
+    color: #667eea;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* История расчетов */
+.recent-calculations {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 40px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.recent-calculations h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .algorithms-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        padding: 20px 15px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

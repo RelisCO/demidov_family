@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-walking"></i> Оплата за шаги</h1>
+        <p class="lead">1 километр = 1 фунт (£)</p>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Форма расчета -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Калькулятор выплат</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="stepForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_user" class="form-label">Выберите пользователя:</label>
+                            {{ form.user }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_kilometers" class="form-label">Километры:</label>
+                            {{ form.kilometers }}
+                            <div class="form-text">Введите количество пройденных километров</div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Рассчитать и начислить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Результат расчета -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Результат расчета</h3>
+                </div>
+                <div class="card-body">
+                    {% if amount_earned %}
+                    <div class="calculation-result">
+                        <h4 class="text-success">
+                            <i class="fas fa-money-bill-wave"></i>
+                            К начислению: <strong>{{ amount_earned }}£</strong>
+                        </h4>
+                        
+                        {% if form.user.value %}
+                        {% with selected_user=form.cleaned_data.user %}
+                        <div class="user-info mt-3">
+                            <h5>Информация о пользователе:</h5>
+                            <p><strong>Имя:</strong> {{ selected_user.get_full_name|default:selected_user.username }}</p>
+                            <p><strong>Текущий баланс:</strong> {{ selected_user.profile.virtual_balance }}£</p>
+                            <p><strong>Баланс после начисления:</strong> 
+                                <span class="fw-bold text-success">
+                                    {{ selected_user.profile.virtual_balance|add:amount_earned }}£
+                                </span>
+                            </p>
+                        </div>
+                        {% endwith %}
+                        {% endif %}
+                        
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle"></i>
+                            Деньги успешно начислены на баланс пользователя
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-calculator fa-3x mb-3"></i>
+                        <p>Введите данные для расчета</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.calculation-result {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+}
+
+.user-info {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.form-select, .form-control {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    width: 100%;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+</style>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Автоматический фокус на поле ввода километров
+    const kilometersInput = document.getElementById('id_kilometers');
+    const userSelect = document.getElementById('id_user');
+    
+    if (kilometersInput) {
+        kilometersInput.focus();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
