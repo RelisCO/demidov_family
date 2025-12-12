@@ -8,130 +8,90 @@
         <h1><i class="fas fa-code"></i> Алгоритмы</h1>
         <p class="lead">Выберите алгоритм для работы</p>
     </div>
-
-    <!-- Карточки алгоритмов -->
-    <div class="algorithms-grid">
-        <!-- Алгоритм оплаты за шаги -->
-        <div class="algorithm-card featured">
-            <div class="algorithm-icon">
-                <i class="fas fa-walking fa-3x"></i>
-            </div>
-            <div class="algorithm-content">
-                <h3>Оплата за шаги</h3>
-                <p class="algorithm-description">
-                    Рассчитайте выплаты пользователям за пройденные километры.
-                    1 км = 1 фунт (£).
-                </p>
-                <div class="algorithm-stats">
-                    <span class="stat">
-                        <i class="fas fa-users"></i>
-                        Для всех пользователей
-                    </span>
-                    <span class="stat">
-                        <i class="fas fa-calculator"></i>
-                        Автоматический расчет
-                    </span>
-                </div>
-                <a href="{% url 'step_payment_calculator' %}" class="btn btn-primary">
-                    <i class="fas fa-play-circle"></i> Запустить алгоритм
-                </a>
-            </div>
-        </div>
-
-        <!-- Другие алгоритмы (заглушки) -->
-        <div class="algorithm-card">
-            <div class="algorithm-icon">
-                <i class="fas fa-chart-line fa-3x"></i>
-            </div>
-            <div class="algorithm-content">
-                <h3>Анализ событий</h3>
-                <p class="algorithm-description">
-                    Анализ семейных событий и статистика.
-                    В разработке.
-                </p>
-                <button class="btn btn-outline-secondary" disabled>
-                    <i class="fas fa-clock"></i> Скоро
-                </button>
-            </div>
-        </div>
-
-        <div class="algorithm-card">
-            <div class="algorithm-icon">
-                <i class="fas fa-calendar-check fa-3x"></i>
-            </div>
-            <div class="algorithm-content">
-                <h3>Планировщик</h3>
-                <p class="algorithm-description">
-                    Алгоритм планирования семейных мероприятий.
-                    В разработке.
-                </p>
-                <button class="btn btn-outline-secondary" disabled>
-                    <i class="fas fa-clock"></i> Скоро
-                </button>
-            </div>
-        </div>
-
-        <div class="algorithm-card">
-            <div class="algorithm-icon">
-                <i class="fas fa-gift fa-3x"></i>
-            </div>
-            <div class="algorithm-content">
-                <h3>Бюджет подарков</h3>
-                <p class="algorithm-description">
-                    Расчет бюджета для семейных праздников.
-                    В разработке.
-                </p>
-                <button class="btn btn-outline-secondary" disabled>
-                    <i class="fas fa-clock"></i> Скоро
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- История расчетов (только для авторизованных) -->
-    {% if user.is_authenticated %}
-    <div class="recent-calculations">
-        <h3><i class="fas fa-history"></i> Недавние расчеты</h3>
-        
-        {% if recent_calculations %}
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Дата</th>
-                        <th>Алгоритм</th>
-                        <th>Пользователь</th>
-                        <th>Сумма</th>
-                        <th>Статус</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for calc in recent_calculations %}
-                    <tr>
-                        <td>{{ calc.created_at|date:"d.m.Y H:i" }}</td>
-                        <td>Оплата за шаги</td>
-                        <td>{{ calc.user.get_full_name|default:calc.user.username }}</td>
-                        <td><strong>{{ calc.amount_earned }}£</strong></td>
-                        <td>
-                            {% if calc.processed %}
-                            <span class="badge bg-success">Выплачено</span>
-                            {% else %}
-                            <span class="badge bg-warning">Ожидает</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div style="display: none;">
+        {% if algorithms %}
+            <!-- Переменная algorithms существует -->
         {% else %}
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i>
-            У вас пока нет расчетов. Запустите алгоритм "Оплата за шаги".
-        </div>
+            <!-- Переменная algorithms НЕ передана! -->
         {% endif %}
     </div>
+    <!-- Для суперпользователя — выведем дебаг -->
+    {% if user.is_superuser %}
+        <div style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 10px; font-size: 12px; z-index: 9999;">
+            DEBUG: user.is_superuser = True<br>
+            algorithms count: {{ algorithms|length }}
+        </div>
     {% endif %}
+    <!-- Карточки алгоритмов -->
+    <div class="algorithms-grid">
+        <!-- Динамические алгоритмы -->
+        {% for algo in algorithms %}
+            <div class="algorithm-card {% if algo.title == 'Оплата за шаги' %}featured{% endif %}">
+                <div class="algorithm-icon">
+                    <i class="{{ algo.icon }} fa-3x"></i>
+                </div>
+                <div class="algorithm-content">
+                    <h3>{{ algo.title }}</h3>
+                    <p class="algorithm-description">{{ algo.description }}</p>
+
+                    <a href="{% url algo.url %}" class="btn btn-primary">
+                        <i class="fas fa-play-circle"></i> Запустить алгоритм
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Заглушки "в разработке" — только для обычных пользователей -->
+        {% if not user.is_superuser %}
+            <div class="algorithm-card">
+                <div class="algorithm-icon">
+                    <i class="fas fa-chart-line fa-3x"></i>
+                </div>
+                <div class="algorithm-content">
+                    <h3>Анализ событий</h3>
+                    <p class="algorithm-description">
+                        Анализ семейных событий и статистика.
+                    </p>
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i class="fas fa-clock"></i> Скоро
+                    </button>
+                </div>
+            </div>
+
+            <div class="algorithm-card">
+                <div class="algorithm-icon">
+                    <i class="fas fa-calendar-check fa-3x"></i>
+                </div>
+                <div class="algorithm-content">
+                    <h3>Планировщик</h3>
+                    <p class="algorithm-description">
+                        Алгоритм планирования семейных мероприятий.
+                    </p>
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i class="fas fa-clock"></i> Скоро
+                    </button>
+                </div>
+            </div>
+
+            <div class="algorithm-card">
+                <div class="algorithm-icon">
+                    <i class="fas fa-gift fa-3x"></i>
+                </div>
+                <div class="algorithm-content">
+                    <h3>Бюджет подарков</h3>
+                    <p class="algorithm-description">
+                        Расчет бюджета для семейных праздников.
+                    </p>
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i class="fas fa-clock"></i> Скоро
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+
+    
 </div>
 
 <style>

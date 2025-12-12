@@ -1,0 +1,73 @@
+<!-- birthday_calculator.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-gift"></i> День рождения</h1>
+        <p class="lead">Начисление подарков за участие в ДР</p>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Шаг 1: Выбор именинника -->
+    {% if not birthday_person %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>1. Выберите именинника</h3>
+                <div class="mb-3">
+                    {{ form.birthday_person.label_tag }}
+                    {{ form.birthday_person }}
+                </div>
+            </div>
+        </div>
+        <button type="submit" name="select_birthday" class="btn btn-primary">Продолжить</button>
+    </form>
+    {% else %}
+    <!-- Шаг 2: Выбор формата участия -->
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="birthday_person_id" value="{{ birthday_person.id }}">
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>2. Укажите формат присутствия гостей</h3>
+                <p><strong>Именинник:</strong> {{ birthday_person.user.get_full_name }}</p>
+
+                {% for item in guest_fields %}
+                    <div class="form-group mb-3">
+                        <label>{{ item.user.get_full_name|default:item.user.username }}</label>
+                        <div class="d-flex gap-3 flex-wrap">
+                            {% for radio in item.field %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label">{{ radio.choice_label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле "Комбо лет" — только если есть -->
+                        {% if item.combo_field %}
+                            <div class="mt-2">
+                                {{ item.combo_field.label_tag }}
+                                {{ item.combo_field }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" name="confirm_attendance" class="btn btn-success">Начислить награды</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

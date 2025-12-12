@@ -130,3 +130,162 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,123,255,0.3);
 }
+.user-menu {
+        position: relative;
+    }
+    
+    .dropdown {
+        display: inline-block;
+    }
+    
+    .dropdown-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .dropdown-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 200px;
+        z-index: 1000;
+        list-style: none;
+        padding: 10px 0;
+        margin-top: 5px;
+    }
+    
+    .dropdown-item {
+        display: block;
+        padding: 10px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+    
+    .dropdown-item i {
+        width: 20px;
+        margin-right: 10px;
+    }
+    
+    .logout-link {
+        color: #dc3545 !important;
+    }
+    
+    .logout-link:hover {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    .dropdown-divider {
+        height: 1px;
+        margin: 8px 0;
+        background-color: #e9ecef;
+    }
+    
+    .balance-badge {
+        background-color: #28a745;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        margin-left: 5px;
+    }
+    
+    .user-name {
+        font-weight: 600;
+    }
+    
+    /* Стили для алертов */
+    .messages-container {
+        margin: 20px 0;
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .alert-error, .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+    }
+    
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+    }
+    
+    .close-btn:hover {
+        opacity: 1;
+    }
+    
+    /* Стили для футера */
+    .footer-user {
+        font-size: 0.9em;
+        margin-top: 10px;
+        color: #666;
+    }
+    
+    .footer-logout {
+        color: #dc3545;
+        text-decoration: none;
+    }
+    
+    .footer-logout:hover {
+        text-decoration: underline;
+    }
+    
+    /* Стили для кнопки входа */
+    .login-btn {
+        background-color: #007bff;
+        border-radius: 6px;
+    }
+    
+    .login-btn:hover {
+        background-color: #0056b3;
+    }

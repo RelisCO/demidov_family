@@ -1,108 +1,101 @@
-<!-- В templates/transactions/history.html -->
+<!-- templates/transactions/history.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
 <div class="container">
     <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1><i class="fas fa-history"></i> История транзакций</h1>
                 <p class="lead">Все пополнения, вычеты и ожидающие операции</p>
             </div>
-            <div>
-                {% if transactions %}
-                <!-- Кнопка для открытия модального окна -->
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
-                    <i class="fas fa-trash-alt"></i> Очистить историю
-                </button>
-                {% endif %}
-            </div>
+            <!-- Кнопка очистки — показывается только если есть транзакции -->
+            {% if transactions %}
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+                <i class="fas fa-trash-alt"></i> Очистить историю
+            </button>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Модальное окно для очистки истории -->
+    <!-- Модальное окно: Очистка истории -->
+    {% if transactions %}
     <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-exclamation-triangle"></i> Очистка истории транзакций
-                    </h5>
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Подтверждение удаления</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger">
                         <h6><i class="fas fa-exclamation-circle"></i> Внимание!</h6>
-                        <p class="mb-0">Вы собираетесь удалить всю историю транзакций.</p>
+                        <p class="mb-0">Удаление всей истории транзакций — необратимое действие.</p>
                     </div>
-                    
                     <div class="alert alert-warning">
-                        <h6>Будет удалено:</h6>
+                        <h6>Удалённые данные:</h6>
                         <ul class="mb-0">
                             <li><strong>Всего записей:</strong> {{ stats.total }}</li>
                             <li><strong>Ожидающих:</strong> {{ stats.pending }}</li>
-                            <li><strong>Подтвержденных:</strong> {{ stats.approved }}</li>
-                            <li><strong>Отклоненных:</strong> {{ stats.rejected }}</li>
+                            <li><strong>Подтверждённых:</strong> {{ stats.approved }}</li>
+                            <li><strong>Отклонённых:</strong> {{ stats.rejected }}</li>
                         </ul>
                     </div>
-                    
-                    <div class="mb-3">
-                        <p>Это действие нельзя отменить. Балансы пользователей не изменятся.</p>
-                        
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="confirmCheckbox">
-                            <label class="form-check-label" for="confirmCheckbox">
-                                Я понимаю, что все транзакции будут удалены без возможности восстановления
-                            </label>
-                        </div>
+                    <p>Балансы пользователей останутся без изменений.</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmClear">
+                        <label class="form-check-label" for="confirmClear">
+                            Я подтверждаю удаление всей истории
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i> Отмена
                     </button>
-                    <form method="post" action="{% url 'clear_transaction_history' %}" id="clearForm">
+                    <form method="post" action="{% url 'clear_transaction_history' %}" id="clearHistoryForm">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger" id="clearButton" disabled>
-                            <i class="fas fa-trash-alt"></i> Очистить историю
+                        <button type="submit" class="btn btn-danger" id="clearHistoryBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> Удалить все
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Статистика -->
-    <div class="row mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card bg-primary text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title">Всего</h6>
+                    <h6 class="card-title mb-0">Всего</h6>
                     <h3 class="mb-0">{{ stats.total }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
+            <div class="card bg-warning text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title">Ожидают</h6>
+                    <h6 class="card-title mb-0">Ожидают</h6>
                     <h3 class="mb-0">{{ stats.pending }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
+            <div class="card bg-success text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title">Подтверждено</h6>
+                    <h6 class="card-title mb-0">Подтверждено</h6>
                     <h3 class="mb-0">{{ stats.approved }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-info text-white">
+            <div class="card bg-info text-white h-100">
                 <div class="card-body text-center">
-                    <h6 class="card-title">Сумма</h6>
+                    <h6 class="card-title mb-0">Сумма</h6>
                     <h3 class="mb-0">{{ stats.total_amount }}£</h3>
                 </div>
             </div>
@@ -114,31 +107,31 @@
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Статус:</label>
+                    <label class="form-label fw-semibold">Статус</label>
                     <div class="btn-group" role="group">
                         <a href="{% url 'transaction_history' %}" 
                            class="btn btn-outline-secondary {% if not current_status %}active{% endif %}">
                             Все
                         </a>
-                        {% for status_code, status_name in statuses %}
-                        <a href="{% url 'transaction_history' %}?status={{ status_code }}" 
-                           class="btn btn-outline-secondary {% if current_status == status_code %}active{% endif %}">
-                            {{ status_name }}
+                        {% for code, name in statuses %}
+                        <a href="?status={{ code }}{% if current_type %}&type={{ current_type }}{% endif %}" 
+                           class="btn btn-outline-secondary {% if current_status == code %}active{% endif %}">
+                            {{ name }}
                         </a>
                         {% endfor %}
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Тип:</label>
+                    <label class="form-label fw-semibold">Тип</label>
                     <div class="btn-group" role="group">
                         <a href="{% url 'transaction_history' %}" 
                            class="btn btn-outline-secondary {% if not current_type %}active{% endif %}">
                             Все
                         </a>
-                        {% for type_code, type_name in types %}
-                        <a href="{% url 'transaction_history' %}?type={{ type_code }}" 
-                           class="btn btn-outline-secondary {% if current_type == type_code %}active{% endif %}">
-                            {{ type_name }}
+                        {% for code, name in types %}
+                        <a href="?type={{ code }}{% if current_status %}&status={{ current_status }}{% endif %}" 
+                           class="btn btn-outline-secondary {% if current_type == code %}active{% endif %}">
+                            {{ name }}
                         </a>
                         {% endfor %}
                     </div>
@@ -152,8 +145,8 @@
         <div class="card-body">
             {% if transactions %}
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
                             <th>ID</th>
                             <th>Дата</th>
@@ -168,106 +161,122 @@
                     <tbody>
                         {% for transaction in transactions %}
                         <tr>
-                            <td>#{{ transaction.id }}</td>
+                            <td><code>#{{ transaction.id }}</code></td>
                             <td>{{ transaction.created_at|date:"d.m.Y H:i" }}</td>
                             <td>{{ transaction.user.get_full_name|default:transaction.user.username }}</td>
                             <td>
-                                <span class="badge bg-{{ transaction.get_type_color }}">
+                                <span class="badge bg-{{ transaction.get_type_color }} px-3 py-2">
                                     {{ transaction.get_transaction_type_display }}
                                 </span>
                             </td>
                             <td>
                                 {% if transaction.amount >= 0 %}
-                                <span class="text-success">+{{ transaction.amount }}£</span>
+                                    <span class="text-success fw-medium">+{{ transaction.amount }}£</span>
                                 {% else %}
-                                <span class="text-danger">{{ transaction.amount }}£</span>
+                                    <span class="text-danger fw-medium">{{ transaction.amount }}£</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <span class="badge bg-{{ transaction.get_status_color }}">
+                                <span class="badge bg-{{ transaction.get_status_color }} px-3 py-2">
                                     {{ transaction.get_status_display }}
                                 </span>
                             </td>
                             <td>
-                                <small class="text-muted">
+                                <small class="text-muted d-block">
                                     {{ transaction.description|default:""|truncatechars:50 }}
                                 </small>
                                 {% if transaction.reason %}
-                                <br><small><em>{{ transaction.reason|truncatechars:50 }}</em></small>
+                                    <small class="text-danger fst-italic">
+                                        Причина: {{ transaction.reason|truncatechars:50 }}
+                                    </small>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if transaction.status == 'pending' %}
-                                <div class="btn-group btn-group-sm">
-                                    <form method="post" action="{% url 'approve_transaction' transaction.id %}" 
-                                          style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success" 
-                                                onclick="return confirm('Подтвердить транзакцию?')"
-                                                title="Подтвердить">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                    
-                                    <button type="button" class="btn btn-danger" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#rejectModal{{ transaction.id }}"
-                                            title="Отклонить">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                
-                                <!-- Модальное окно для отклонения -->
-                                <div class="modal fade" id="rejectModal{{ transaction.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Отклонить транзакцию #{{ transaction.id }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form method="post" action="{% url 'reject_transaction' transaction.id %}">
+                                    {% if request.user.is_superuser %}
+                                        <!-- Суперпользователь: прямые действия без подтверждения -->
+                                        <div class="btn-group btn-group-sm">
+                                            <!-- Прямое подтверждение -->
+                                            <form method="post" action="{% url 'approve_transaction' transaction.id %}" class="d-inline" style="display: inline;">
                                                 {% csrf_token %}
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <label for="reason{{ transaction.id }}" class="form-label">
-                                                            Причина отклонения:
-                                                        </label>
-                                                        <textarea class="form-control" 
-                                                                  id="reason{{ transaction.id }}" 
-                                                                  name="reason" 
-                                                                  rows="3"
-                                                                  placeholder="Укажите причину отклонения..."></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" 
-                                                            data-bs-dismiss="modal">Отмена</button>
-                                                    <button type="submit" class="btn btn-danger">
-                                                        Отклонить
-                                                    </button>
-                                                </div>
+                                                <button type="submit" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Подтвердить">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- Прямое отклонение с краткой формой -->
+                                            <form method="post" action="{% url 'reject_transaction' transaction.id %}" class="d-inline" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="reason" value="Автоматически отклонено суперпользователем">
+                                                <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Отклонить">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
                                             </form>
                                         </div>
-                                    </div>
-                                </div>
-                                {% else %}
-                                <small class="text-muted">
-                                    {% if transaction.processed_by %}
-                                    {{ transaction.processed_at|date:"d.m.Y H:i" }}<br>
-                                    {{ transaction.processed_by.get_full_name|default:transaction.processed_by.username }}
+                                    {% else %}
+                                        <!-- Обычные модераторы: с модальными окнами -->
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <form method="post" action="{% url 'approve_transaction' transaction.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success"
+                                                        data-bs-toggle="tooltip" title="Подтвердить"
+                                                        onclick="return confirm('Подтвердить транзакцию?')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#rejectModal{{ transaction.id }}"
+                                                    data-bs-toggle="tooltip" title="Отклонить">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Модальное окно отклонения для обычных модераторов -->
+                                        <div class="modal fade" id="rejectModal{{ transaction.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Отклонить транзакцию #{{ transaction.id }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <form method="post" action="{% url 'reject_transaction' transaction.id %}">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label for="reason_{{ transaction.id }}" class="form-label">Причина отклонения</label>
+                                                                <textarea class="form-control" id="reason_{{ transaction.id }}" name="reason" rows="3" placeholder="Укажите причину..." required></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                                            <button type="submit" class="btn btn-danger">Отклонить</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     {% endif %}
-                                </small>
+                                {% else %}
+                                    <!-- Уже обработано -->
+                                    <small class="text-muted">
+                                        {% if transaction.processed_by %}
+                                            <strong>Дата:</strong> {{ transaction.processed_at|date:"d.m.Y H:i" }}<br>
+                                            <strong>Модератор:</strong> {{ transaction.processed_by.get_full_name|default:transaction.processed_by.username }}
+                                        {% endif %}
+                                    </small>
                                 {% endif %}
                             </td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
             {% else %}
-            <div class="text-center py-4">
+            <div class="text-center py-5">
                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                <p class="text-muted">Транзакции не найдены</p>
+                <p class="text-muted">Транзакций не найдено</p>
                 <a href="{% url 'algorithms' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Создать транзакцию
                 </a>
@@ -277,12 +286,21 @@
     </div>
 </div>
 
+<!-- Стили -->
 <style>
 .card {
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     border: none;
+    margin-bottom: 20px;
+}
+
+.card-body {
+    border-radius: 15px;
+}
+
+.btn-group .btn {
+    transition: background-color 0.2s;
 }
 
 .btn-group .btn.active {
@@ -291,78 +309,90 @@
     border-color: #0d6efd;
 }
 
+.table {
+    min-width: 800px;
+}
+
 .table th {
     font-weight: 600;
     color: #495057;
     border-bottom: 2px solid #dee2e6;
 }
 
-.table tbody tr:hover {
+.table-hover tbody tr:hover {
     background-color: #f8f9fa;
 }
 
 .badge {
+    font-size: 0.85em;
+    font-weight: 500;
     padding: 6px 12px;
     border-radius: 20px;
-    font-weight: 500;
 }
 
-.btn-group-sm .btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+.alert ul {
+    margin-bottom: 0;
 }
 
-/* Стили для модального окна */
+#clearHistoryBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Улучшения для модального окна */
 .modal-content {
     border-radius: 15px;
+    overflow: hidden;
+}
+
+.modal-header,
+.modal-footer {
     border: none;
 }
 
-.modal-header {
-    border-radius: 15px 15px 0 0;
-}
-
-.modal-footer {
-    border-radius: 0 0 15px 15px;
-}
-
-#clearButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+/* Подсказки */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
 }
 </style>
 
+<!-- Скрипты -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Управление кнопкой очистки истории
-    const confirmCheckbox = document.getElementById('confirmCheckbox');
-    const clearButton = document.getElementById('clearButton');
-    const clearForm = document.getElementById('clearForm');
-    
-    if (confirmCheckbox && clearButton) {
-        confirmCheckbox.addEventListener('change', function() {
-            clearButton.disabled = !this.checked;
+document.addEventListener('DOMContentLoaded', function () {
+    // Управление чекбоксом и кнопкой в модальном окне очистки
+    const confirmClear = document.getElementById('confirmClear');
+    const clearBtn = document.getElementById('clearHistoryBtn');
+    const clearForm = document.getElementById('clearHistoryForm');
+
+    if (confirmClear && clearBtn) {
+        confirmClear.addEventListener('change', () => {
+            clearBtn.disabled = !confirmClear.checked;
         });
-        
-        // Очистка чекбокса при закрытии модального окна
+
+        // Сброс состояния при закрытии модального окна
         const modal = document.getElementById('clearHistoryModal');
-        if (modal) {
-            modal.addEventListener('hidden.bs.modal', function() {
-                confirmCheckbox.checked = false;
-                clearButton.disabled = true;
-            });
-        }
+        modal.addEventListener('hidden.bs.modal', () => {
+            confirmClear.checked = false;
+            clearBtn.disabled = true;
+        });
     }
-    
-    // Подтверждение очистки истории
-    if (clearForm) {
-        clearForm.addEventListener('submit', function(e) {
+
+    // Дополнительное подтверждение перед отправкой формы очистки
+    clearForm.addEventListener('submit', function (e) {
+        // Проверяем, не суперпользователь ли
+        const isSuperuser = {{ request.user.is_superuser|lower }};
+
+        if (!isSuperuser) {
             if (!confirm('Вы уверены, что хотите удалить всю историю транзакций?\n\nЭто действие нельзя отменить!')) {
                 e.preventDefault();
-                return false;
             }
-        });
-    }
+        }
+        // Если суперпользователь — подтверждение не требуется
+    });
+
+    // Инициализация подсказок
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltipTriggerList].map(tooltipEl => new bootstrap.Tooltip(tooltipEl));
 });
 </script>
 {% endblock %}

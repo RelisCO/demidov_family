@@ -8,7 +8,7 @@
             <i class="fas fa-arrow-left"></i> Назад к алгоритмам
         </a>
     </div>
-    
+
     <div class="row">
         <!-- Основная информация -->
         <div class="col-md-6">
@@ -21,7 +21,7 @@
                         <label><i class="fas fa-user"></i> Имя пользователя:</label>
                         <span class="value">{{ user.username }}</span>
                     </div>
-                    
+
                     <div class="info-item">
                         <label><i class="fas fa-signature"></i> Полное имя:</label>
                         <span class="value">
@@ -32,31 +32,31 @@
                             {% endif %}
                         </span>
                     </div>
-                    
+
                     <div class="info-item">
                         <label><i class="fas fa-envelope"></i> Email:</label>
                         <span class="value">{{ user.email|default:"Не указан" }}</span>
                     </div>
-                    
+
                     <div class="info-item">
                         <label><i class="fas fa-calendar-plus"></i> Дата регистрации:</label>
                         <span class="value">{{ user.date_joined|date:"d.m.Y H:i" }}</span>
                     </div>
-                    
+
                     <div class="info-item">
                         <label><i class="fas fa-user-tag"></i> Роль:</label>
                         <span class="value">
                             {% if user.is_superuser %}
-                            <span class="badge bg-danger">Администратор</span>
+                                <span class="badge bg-danger">Администратор</span>
                             {% else %}
-                            <span class="badge bg-secondary">Пользователь</span>
+                                <span class="badge bg-secondary">Пользователь</span>
                             {% endif %}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Финансовая информация -->
         <div class="col-md-6">
             <div class="card">
@@ -64,6 +64,7 @@
                     <h3><i class="fas fa-chart-line"></i> Финансовая статистика</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Карточка баланса -->
                     <div class="balance-card">
                         <div class="balance-icon">
                             <i class="fas fa-wallet"></i>
@@ -73,19 +74,15 @@
                             <div class="balance-amount">{{ user.profile.virtual_balance }}£</div>
                         </div>
                     </div>
+
                     
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-label">Всего заработано</div>
-                            <div class="stat-value">{{ user.profile.total_earned }}£</div>
-                        </div>
-                        
-                        
+
+                    
                 </div>
             </div>
         </div>
     </div>
-    
+
     
 </div>
 
@@ -112,7 +109,7 @@
 .card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     margin-bottom: 25px;
 }
 
@@ -204,7 +201,7 @@
     font-weight: 700;
 }
 
-/* Статистика */
+/* Сетка статистики */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -231,6 +228,7 @@
     color: #2c3e50;
 }
 
+/* Быстрые действия */
 .quick-actions {
     display: flex;
     gap: 15px;
@@ -258,19 +256,13 @@
 }
 
 .alert {
-    border-radius: 10px;
+    border-radius: 0;
     border: none;
     margin-bottom: 0;
-}
-
-.alert-info {
-    background-color: #e3f2fd;
-    color: #0d47a1;
-}
-
-.alert-link {
-    color: #1565c0;
-    font-weight: 600;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
 }
 
 /* Адаптивность */
@@ -279,30 +271,30 @@
         flex-direction: column;
         text-align: center;
     }
-    
+
     .profile-header h1 {
         font-size: 1.8rem;
     }
-    
+
     .info-item {
         flex-direction: column;
         gap: 5px;
     }
-    
+
     .balance-card {
         flex-direction: column;
         text-align: center;
         gap: 15px;
     }
-    
+
     .balance-amount {
         font-size: 1.8rem;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .quick-actions .btn {
         min-width: 100%;
     }

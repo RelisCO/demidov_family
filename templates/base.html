@@ -5,89 +5,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайт семьи Демидовых</title>
+    
+    <!-- Правильный порядок CSS: сначала Bootstrap, потом сторонние, потом свои -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
+    <header class="header" role="banner">
         <div class="container">
-            <div class="header-content">
+            <div class="header-content d-flex justify-content-between align-items-center">
                 <div class="logo">
-                    <h1><i class="fas fa-home"></i> Сайт семьи Демидовых</h1>
+                    <h1><i class="fas fa-home" aria-hidden="true"></i> Сайт семьи Демидовых</h1>
                 </div>
-                <nav class="navigation">
-                    <a href="{% url 'index' %}" class="nav-link">
-                        <i class="fas fa-home"></i> Главная
+                <nav class="navigation" role="navigation">
+                    <a href="{% url 'index' %}" class="nav-link" aria-current="{% if request.resolver_match.url_name == 'index' %}page{% endif %}">
+                        <i class="fas fa-home" aria-hidden="true"></i> Главная
                     </a>
-                    <a href="{% url 'algorithms' %}" class="nav-link">
-                        <i class="fas fa-code"></i> Алгоритмы
+                    <a href="{% url 'algorithms' %}" class="nav-link" aria-current="{% if request.resolver_match.url_name == 'algorithms' %}page{% endif %}">
+                        <i class="fas fa-code" aria-hidden="true"></i> Алгоритмы
                     </a>
-                    <a href="{% url 'events' %}" class="nav-link">
-                        <i class="fas fa-calendar-alt"></i> События
+                    <a href="{% url 'events' %}" class="nav-link" aria-current="{% if request.resolver_match.url_name == 'events' %}page{% endif %}">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i> События
                     </a>
                     
                     {% if user.is_authenticated %}
-                    <div class="user-menu">
-                        <div class="dropdown">
-                            <button class="nav-link dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> 
-                                <span class="user-name">
-                                    {% if user.first_name or user.last_name %}
-                                        {{ user.first_name }} {{ user.last_name }}
-                                    {% else %}
-                                        {{ user.username }}
-                                    {% endif %}
-                                </span>
-                                {% if user.profile.virtual_balance > 0 %}
-                                <span class="balance-badge">{{ user.profile.virtual_balance }}£</span>
+                    <div class="dropdown">
+                        <button
+                            class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                            type="button"
+                            id="userDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                        >
+                            <i class="fas fa-user-circle" aria-hidden="true"></i>
+                            <span class="user-name">
+                                {% if user.first_name or user.last_name %}
+                                    {{ user.first_name }} {{ user.last_name }}
+                                {% else %}
+                                    {{ user.username }}
                                 {% endif %}
-                                <i class="fas fa-chevron-down"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'profile' %}">
-                                        <i class="fas fa-user"></i> Мой профиль
-                                    </a>
-                                </li>
-                                {% if user.is_superuser %}
-                                
-                                <li>
-                                    <a class="dropdown-item" href="/admin/" target="_blank">
-                                        <i class="fas fa-cog"></i> Админ-панель
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'money_deduction' %}">
-                                        <i class="fas fa-minus-circle text-danger"></i> Вычет денег
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'transaction_history' %}">
-                                        <i class="fas fa-history"></i> История транзакций
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'view_deleted_transactions' %}">
-                                        <i class="fas fa-trash"></i> Корзина транзакций
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                {% endif %}
-                                <li>
-                                    <!-- Форма для выхода через POST -->
-                                    <form method="post" action="{% url 'logout' %}" id="logoutForm" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item logout-link" style="width: 100%; text-align: left; background: none; border: none;">
-                                            <i class="fas fa-sign-out-alt"></i> Выйти
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+                            </span>
+                            {% if user.profile.virtual_balance > 0 %}
+                                <span class="balance-badge" aria-label="Баланс: {{ user.profile.virtual_balance }}£">{{ user.profile.virtual_balance }}£</span>
+                            {% endif %}
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fas fa-user" aria-hidden="true"></i> Мой профиль
+                                </a>
+                            </li>
+                            
+                            {% if user.is_superuser %}
+                            <li>
+                                <a class="dropdown-item" href="/admin/" target="_blank" rel="noopener">
+                                    <i class="fas fa-cog" aria-hidden="true"></i> Админ-панель
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'money_deduction' %}">
+                                    <i class="fas fa-minus-circle text-danger" aria-hidden="true"></i> Вычет денег
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'transaction_history' %}">
+                                    <i class="fas fa-history" aria-hidden="true"></i> История транзакций
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" id="logoutForm" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item logout-link w-100 text-start">
+                                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                     {% else %}
                     <a href="{% url 'login' %}" class="nav-link login-btn">
-                        <i class="fas fa-sign-in-alt"></i> Войти
+                        <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Войти
                     </a>
                     {% endif %}
                 </nav>
@@ -95,25 +98,24 @@
         </div>
     </header>
 
-    <main class="main">
+    <main class="main" role="main">
         <div class="container">
             {% if messages %}
-            <div class="messages-container">
+            <div class="messages-container" aria-live="polite">
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
-                    {{ message }}
+                <div class="alert alert-{{ message.tags }} d-flex justify-content-between align-items-center" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
-            
-            {% block content %}
-            {% endblock %}
+
+            {% block content %}{% endblock %}
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <p>&copy; 2024 Сайт семьи Демидовых</p>
             {% if user.is_authenticated %}
@@ -130,173 +132,8 @@
         </div>
     </footer>
 
-    <!-- Bootstrap для dropdown -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Скрипты в конце body -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script src="{% static 'js/main.js' %}"></script>
-    
-    <style>
-    /* Стили для меню пользователя */
-    .user-menu {
-        position: relative;
-    }
-    
-    .dropdown {
-        display: inline-block;
-    }
-    
-    .dropdown-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .dropdown-toggle:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .dropdown-menu {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        min-width: 200px;
-        z-index: 1000;
-        list-style: none;
-        padding: 10px 0;
-        margin-top: 5px;
-    }
-    
-    .dropdown-item {
-        display: block;
-        padding: 10px 20px;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.3s;
-    }
-    
-    .dropdown-item:hover {
-        background-color: #f8f9fa;
-        color: #007bff;
-    }
-    
-    .dropdown-item i {
-        width: 20px;
-        margin-right: 10px;
-    }
-    
-    .logout-link {
-        color: #dc3545 !important;
-    }
-    
-    .logout-link:hover {
-        background-color: #dc3545 !important;
-        color: white !important;
-    }
-    
-    .dropdown-divider {
-        height: 1px;
-        margin: 8px 0;
-        background-color: #e9ecef;
-    }
-    
-    .balance-badge {
-        background-color: #28a745;
-        color: white;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 0.8em;
-        margin-left: 5px;
-    }
-    
-    .user-name {
-        font-weight: 600;
-    }
-    
-    /* Стили для алертов */
-    .messages-container {
-        margin: 20px 0;
-    }
-    
-    .alert {
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        position: relative;
-    }
-    
-    .alert-success {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .alert-error, .alert-danger {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    
-    .alert-info {
-        background-color: #d1ecf1;
-        border: 1px solid #bee5eb;
-        color: #0c5460;
-    }
-    
-    .alert-warning {
-        background-color: #fff3cd;
-        border: 1px solid #ffeaa7;
-        color: #856404;
-    }
-    
-    .close-btn {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-        color: inherit;
-        opacity: 0.7;
-    }
-    
-    .close-btn:hover {
-        opacity: 1;
-    }
-    
-    /* Стили для футера */
-    .footer-user {
-        font-size: 0.9em;
-        margin-top: 10px;
-        color: #666;
-    }
-    
-    .footer-logout {
-        color: #dc3545;
-        text-decoration: none;
-    }
-    
-    .footer-logout:hover {
-        text-decoration: underline;
-    }
-    
-    /* Стили для кнопки входа */
-    .login-btn {
-        background-color: #007bff;
-        border-radius: 6px;
-    }
-    
-    .login-btn:hover {
-        background-color: #0056b3;
-    }
-    </style>
+    <script src="{% static 'js/main.js' %}" defer></script>
 </body>
 </html>

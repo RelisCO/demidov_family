@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-gift"></i> Результат: День рождения</h1>
+    </div>
+
+    <div class="alert alert-success">
+        Подарки за день рождения <strong>{{ birthday_person.get_full_name }}</strong> успешно начислены!
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Начислено</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for reward in rewards %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ reward.user.get_full_name|default:reward.user.username }}</strong>
+                        <span class="badge bg-info ms-2">{{ reward.reason }}</span>
+                    </div>
+                    <span class="fw-bold text-success">{{ reward.amount }}£</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <a href="{% url 'birthday_reward_calculator' %}" class="btn btn-primary mt-3">
+        <i class="fas fa-redo"></i> Новый расчёт
+    </a>
+</div>
+{% endblock %}
